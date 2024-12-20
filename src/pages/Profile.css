@@ -16,7 +16,7 @@
 
 label {
     display: block;
-    margin: 10px 0;
+    margin: 15px 0 5px;
     font-weight: bold;
 }
 
@@ -26,17 +26,25 @@ input {
     margin: 5px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
 }
+
+    input:focus {
+        outline: none;
+        border: 2px solid #007BFF;
+        box-shadow: 0 0 4px rgba(0, 123, 255, 0.6);
+    }
 
 button {
     background-color: #007BFF;
     color: #fff;
     border: none;
     padding: 10px 15px;
-    margin-top: 10px;
+    margin: 20px 0 10px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.3s ease;
 }
 
     button:hover {
@@ -46,4 +54,16 @@ button {
 p {
     margin: 10px 0;
     font-size: 16px;
+}
+
+.error {
+    color: red;
+    font-size: 14px;
+    margin: 10px 0;
+}
+
+@media (max-width: 768px) {
+    .profile-card {
+        width: 90%;
+    }
 }

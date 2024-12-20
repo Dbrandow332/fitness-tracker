@@ -2,8 +2,10 @@
   "ExpandedNodes": [
     "",
     "\\src",
+    "\\src\\components",
+    "\\src\\context",
     "\\src\\pages"
   ],
-  "SelectedNode": "\\src\\firebase.js",
+  "SelectedNode": "\\src\\App.jsx",
   "PreviewInSolutionExplorer": false
 }

@@ -1,29 +1,46 @@
 ﻿import React, { useEffect, useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2"; // Import chart components
-import "chart.js/auto"; // Enables Chart.js features
+import { useAuth } from "../context/AuthContext"; // Use authentication context
+import "chart.js/auto";
 import "./Dashboard.css";
 
 const Dashboard = () => {
+    const { user: currentUser } = useAuth(); // Get the current user from context
     const [workouts, setWorkouts] = useState([]);
-
-    // Fetch workout data from the backend API
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showForm, setShowForm] = useState(false); // Control the visibility of the form
+    const [newWorkout, setNewWorkout] = useState({
+        exercise: "",
+        calories: "",
+        duration: "",
+    });
 
     useEffect(() => {
         const fetchWorkouts = async () => {
+            if (!currentUser?.uid) {
+                setError("User is not authenticated.");
+                setLoading(false);
+                return;
+            }
+
             try {
-                const response = await fetch("http://localhost:5000/api/workouts/USER_ID");
+                const response = await fetch(`http://localhost:5000/api/workouts/${currentUser.uid}`);
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
                 const data = await response.json();
                 setWorkouts(data);
             } catch (error) {
                 console.error("Error fetching workouts:", error);
+                setError("Failed to fetch workouts.");
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchWorkouts();
-    }, []);
-
+    }, [currentUser]);
 
     // Prepare data for charts
     const prepareChartData = () => {
@@ -56,20 +73,97 @@ const Dashboard = () => {
         };
     };
 
+    // Handle form submission for adding new workout
+    const handleAddWorkout = async (e) => {
+        e.preventDefault();
+        if (!currentUser?.uid) {
+            setError("User is not authenticated.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:5000/api/workouts/${currentUser.uid}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newWorkout),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+
+            const addedWorkout = await response.json();
+            setWorkouts([...workouts, addedWorkout]);
+            setNewWorkout({ exercise: "", calories: "", duration: "" }); // Reset form
+            setShowForm(false);
+        } catch (error) {
+            console.error("Error adding workout:", error);
+            setError("Failed to add workout.");
+        }
+    };
 
     return (
         <div style={{ textAlign: "center", padding: "20px" }}>
             <h1>Workout Dashboard</h1>
-            {workouts.length > 0 ? (
+            {loading ? (
+                <p className="loading">Loading workouts...</p>
+            ) : error ? (
+                <p className="error">{error}</p>
+            ) : (
                 <>
+                    {/* Add Workout Button */}
+                    <button className="add-workout-button" onClick={() => setShowForm(!showForm)}>
+                        {showForm ? "Cancel" : "Add New Workout"}
+                    </button>
+
+                    {/* Add Workout Form */}
+                    {showForm && (
+                        <form className="add-workout-form" onSubmit={handleAddWorkout}>
+                            <label>
+                                Exercise:
+                                <input
+                                    type="text"
+                                    value={newWorkout.exercise}
+                                    onChange={(e) =>
+                                        setNewWorkout({ ...newWorkout, exercise: e.target.value })
+                                    }
+                                    required
+                                />
+                            </label>
+                            <label>
+                                Calories Burned:
+                                <input
+                                    type="number"
+                                    value={newWorkout.calories}
+                                    onChange={(e) =>
+                                        setNewWorkout({ ...newWorkout, calories: e.target.value })
+                                    }
+                                    required
+                                />
+                            </label>
+                            <label>
+                                Duration (minutes):
+                                <input
+                                    type="number"
+                                    value={newWorkout.duration}
+                                    onChange={(e) =>
+                                        setNewWorkout({ ...newWorkout, duration: e.target.value })
+                                    }
+                                    required
+                                />
+                            </label>
+                            <button type="submit">Save Workout</button>
+                        </form>
+                    )}
+
                     {/* Bar Chart */}
-                    <div style={{ maxWidth: "700px", margin: "0 auto" }}>
+                    <div className="chart-container">
                         <h2>Calories Burned per Exercise</h2>
                         <Bar data={prepareChartData()} />
                     </div>
 
                     {/* Line Chart */}
-                    <div style={{ maxWidth: "700px", margin: "30px auto" }}>
+                    <div className="chart-container">
                         <h2>Progress Over Time</h2>
                         <Line
                             data={{
@@ -88,13 +182,11 @@ const Dashboard = () => {
                     </div>
 
                     {/* Pie Chart */}
-                    <div style={{ maxWidth: "500px", margin: "30px auto" }}>
+                    <div className="chart-container">
                         <h2>Calories Distribution</h2>
                         <Pie data={prepareChartData()} />
                     </div>
                 </>
-            ) : (
-                <p>Loading workouts...</p>
             )}
         </div>
     );
