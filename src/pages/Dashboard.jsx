@@ -15,6 +15,7 @@ const Dashboard = () => {
         calories: "",
         duration: "",
     });
+    const [isSubmitting, setIsSubmitting] = useState(false); // Track form submission state
 
     useEffect(() => {
         const fetchWorkouts = async () => {
@@ -27,13 +28,17 @@ const Dashboard = () => {
             try {
                 const response = await fetch(`http://localhost:5000/api/workouts/${currentUser.uid}`);
                 if (!response.ok) {
-                    throw new Error(`Error: ${response.status}`);
+                    const message =
+                        response.status === 404
+                            ? "No workouts found. Start by adding a new workout."
+                            : `Error fetching workouts: ${response.statusText}`;
+                    throw new Error(message);
                 }
                 const data = await response.json();
                 setWorkouts(data);
             } catch (error) {
                 console.error("Error fetching workouts:", error);
-                setError("Failed to fetch workouts.");
+                setError(error.message || "Failed to fetch workouts.");
             } finally {
                 setLoading(false);
             }
@@ -76,12 +81,14 @@ const Dashboard = () => {
     // Handle form submission for adding new workout
     const handleAddWorkout = async (e) => {
         e.preventDefault();
-        if (!currentUser?.uid) {
-            setError("User is not authenticated.");
-            return;
-        }
+        setIsSubmitting(true); // Start submission state
 
         try {
+            if (!currentUser?.uid) {
+                setError("User is not authenticated.");
+                return;
+            }
+
             const response = await fetch(`http://localhost:5000/api/workouts/${currentUser.uid}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -96,23 +103,40 @@ const Dashboard = () => {
             setWorkouts([...workouts, addedWorkout]);
             setNewWorkout({ exercise: "", calories: "", duration: "" }); // Reset form
             setShowForm(false);
+            alert("Workout added successfully!");
         } catch (error) {
             console.error("Error adding workout:", error);
-            setError("Failed to add workout.");
+            setError("Failed to add workout. Please try again.");
+        } finally {
+            setIsSubmitting(false); // End submission state
         }
+    };
+
+    const handleCancel = () => {
+        if (
+            newWorkout.exercise ||
+            newWorkout.calories ||
+            newWorkout.duration
+        ) {
+            if (!window.confirm("Are you sure you want to discard the current workout?")) return;
+        }
+        setShowForm(false);
     };
 
     return (
         <div style={{ textAlign: "center", padding: "20px" }}>
             <h1>Workout Dashboard</h1>
             {loading ? (
-                <p className="loading">Loading workouts...</p>
+                <div className="loading-container">
+                    <p className="loading">Loading workouts...</p>
+                    <div className="spinner"></div>
+                </div>
             ) : error ? (
                 <p className="error">{error}</p>
             ) : (
                 <>
                     {/* Add Workout Button */}
-                    <button className="add-workout-button" onClick={() => setShowForm(!showForm)}>
+                    <button className="add-workout-button" onClick={showForm ? handleCancel : () => setShowForm(true)}>
                         {showForm ? "Cancel" : "Add New Workout"}
                     </button>
 
@@ -124,6 +148,7 @@ const Dashboard = () => {
                                 <input
                                     type="text"
                                     value={newWorkout.exercise}
+                                    placeholder="e.g., Running, Yoga, Weightlifting"
                                     onChange={(e) =>
                                         setNewWorkout({ ...newWorkout, exercise: e.target.value })
                                     }
@@ -135,6 +160,7 @@ const Dashboard = () => {
                                 <input
                                     type="number"
                                     value={newWorkout.calories}
+                                    placeholder="Calories burned (e.g., 200)"
                                     onChange={(e) =>
                                         setNewWorkout({ ...newWorkout, calories: e.target.value })
                                     }
@@ -146,13 +172,16 @@ const Dashboard = () => {
                                 <input
                                     type="number"
                                     value={newWorkout.duration}
+                                    placeholder="Duration in minutes (e.g., 30)"
                                     onChange={(e) =>
                                         setNewWorkout({ ...newWorkout, duration: e.target.value })
                                     }
                                     required
                                 />
                             </label>
-                            <button type="submit">Save Workout</button>
+                            <button type="submit" disabled={isSubmitting}>
+                                {isSubmitting ? "Saving..." : "Save Workout"}
+                            </button>
                         </form>
                     )}
 

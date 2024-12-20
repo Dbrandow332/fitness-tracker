@@ -50,6 +50,6 @@
         cursor: pointer;
     }
 
-        .add-workout-form button:hover {
-            background-color: #218838;
-        }
+    .add-workout-form button:hover {
+        background-color: #218838;
+    }
