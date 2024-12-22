@@ -6,6 +6,6 @@
     "\\src\\context",
     "\\src\\pages"
   ],
-  "SelectedNode": "\\src\\pages\\Profile.jsx",
+  "SelectedNode": "\\src\\context\\AuthContext.jsx",
   "PreviewInSolutionExplorer": false
 }

@@ -22,7 +22,7 @@ const Profile = () => {
             }
 
             try {
-                const response = await fetch(`${ process.env.REACT_APP_API_BASE_URL } / api / workouts / ${ currentUser.uid }`);
+                const response = await fetch(`${ process.env.REACT_APP_API_BASE_URL } / api / users / ${ currentUser.uid }`);
                 if (!response.ok) {
                     throw new Error(`Error: ${response.status}`);
                 }
@@ -43,7 +43,7 @@ const Profile = () => {
         }
 
         try {
-            const response = await fetch(`${ process.env.REACT_APP_API_BASE_URL } / api / workouts / ${ currentUser.uid }`, {
+            const response = await fetch(`${ process.env.REACT_APP_API_BASE_URL } / api / users / ${ currentUser.uid }`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(user),
