@@ -36,6 +36,7 @@ const Profile = () => {
 
         fetchUser();
     }, [currentUser]);
+    console.log(currentUser.uid)
 
 
     const handleSave = async () => {
