@@ -20,8 +20,25 @@ const Login = () => {
                 await signInWithEmailAndPassword(auth, email, password);
                 navigate("/profile");
             } else {
-                await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const firebaseUid = userCredential.user.uid;
                 navigate("/profile");
+
+                const response = await fetch("http://localhost:5000/api/users/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        firebaseUid,
+                        name: email.split("@")[0], // Default name (or add a separate name field in the form)
+                        email,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to create user in the database.");
+                }
+
+                alert("Account created successfully and user added to the database!");
             }
         } catch (err) {
             setError(err.message);
