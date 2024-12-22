@@ -47,6 +47,37 @@ const Dashboard = () => {
         fetchWorkouts();
     }, [currentUser]);
 
+    const groupByDate = () => {
+        const grouped = {};
+        workouts.forEach((workout) => {
+            const date = workout.date.split("T")[0]; // Extract date part from timestamp
+            const calories = parseInt(workout.calories) || 0;
+            if (grouped[date]) {
+                grouped[date] += calories;
+            } else {
+                grouped[date] = calories;
+            }
+        });
+
+        return grouped;
+    };
+
+    const prepareLineChartData = () => {
+        const groupedData = groupByDate();
+        return {
+            labels: Object.keys(groupedData), // Dates
+            datasets: [
+                {
+                    label: "Calories Burned",
+                    data: Object.values(groupedData), // Total calories for each date
+                    fill: false,
+                    borderColor: "#36A2EB",
+                    tension: 0.3,
+                },
+            ],
+        };
+    };
+
     // Prepare data for charts
     const prepareChartData = () => {
         const exercises = {};
@@ -185,35 +216,24 @@ const Dashboard = () => {
                         </form>
                     )}
 
-                    {/* Bar Chart */}
-                    <div className="chart-container">
-                        <h2>Calories Burned per Exercise</h2>
-                        <Bar data={prepareChartData()} />
-                    </div>
+                    <div className="charts-container">
+                        {/* Bar Chart */}
+                        <div className="chart">
+                            <h2>Calories Burned per Exercise</h2>
+                            <Bar data={prepareChartData()} />
+                        </div>
 
-                    {/* Line Chart */}
-                    <div className="chart-container">
-                        <h2>Progress Over Time</h2>
-                        <Line
-                            data={{
-                                labels: workouts.map((_, i) => `Workout ${i + 1}`),
-                                datasets: [
-                                    {
-                                        label: "Calories Burned",
-                                        data: workouts.map((workout) => workout.calories),
-                                        fill: false,
-                                        borderColor: "#36A2EB",
-                                        tension: 0.3,
-                                    },
-                                ],
-                            }}
-                        />
-                    </div>
+                        {/* Line Chart */}
+                        <div className="chart">
+                            <h2>Progress Over Time</h2>
+                            <Line data={prepareLineChartData()}/>
+                        </div>
 
-                    {/* Pie Chart */}
-                    <div className="chart-container">
-                        <h2>Calories Distribution</h2>
-                        <Pie data={prepareChartData()} />
+                        {/* Pie Chart */}
+                        <div className="chart">
+                            <h2>Calories Distribution</h2>
+                            <Pie data={prepareChartData()} />
+                        </div>
                     </div>
                 </>
             )}
