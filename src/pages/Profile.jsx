@@ -13,6 +13,7 @@ const Profile = () => {
         calorieTarget: "",
     });
     const [isEditing, setIsEditing] = useState(false);
+    const BASE_URL = "https://fitness-trakcer-backend-production.up.railway.app";
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -22,9 +23,9 @@ const Profile = () => {
             }
 
             try {
-                const response = await fetch(`${ process.env.REACT_APP_API_BASE_URL } / api / users / ${ currentUser.uid }`);
+                const response = await fetch(`${BASE_URL}/api/users/${currentUser.uid}`);
                 if (!response.ok) {
-                    throw new Error(`Error: ${response.status}`);
+                    throw new Error(`Error: ${response.status} - ${response.statusText}`);
                 }
                 const data = await response.json();
                 setUser(data);
@@ -36,6 +37,7 @@ const Profile = () => {
         fetchUser();
     }, [currentUser]);
 
+
     const handleSave = async () => {
         if (!currentUser?.uid) {
             console.error("User UID is missing");
@@ -43,7 +45,7 @@ const Profile = () => {
         }
 
         try {
-            const response = await fetch(`${ process.env.REACT_APP_API_BASE_URL } / api / users / ${ currentUser.uid }`, {
+            const response = await fetch(`${BASE_URL}/api/users/${currentUser.uid}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(user),

@@ -2,10 +2,8 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\components",
-    "\\src\\context",
     "\\src\\pages"
   ],
-  "SelectedNode": "\\src\\context\\AuthContext.jsx",
+  "SelectedNode": "\\src\\pages\\Dashboard.jsx",
   "PreviewInSolutionExplorer": false
 }

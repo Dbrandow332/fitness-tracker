@@ -10,6 +10,7 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [isLogin, setIsLogin] = useState(true);
+    const BASE_URL = "https://fitness-trakcer-backend-production.up.railway.app";
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,14 +23,13 @@ const Login = () => {
             } else {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const firebaseUid = userCredential.user.uid;
-                navigate("/profile");
 
-                const response = await fetch("http://localhost:5000/api/users/register", {
+                const response = await fetch(`${BASE_URL}/api/users/${firebaseUid}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         firebaseUid,
-                        name: email.split("@")[0], // Default name (or add a separate name field in the form)
+                        name: email.split("@")[0],
                         email,
                     }),
                 });
@@ -37,8 +37,7 @@ const Login = () => {
                 if (!response.ok) {
                     throw new Error("Failed to create user in the database.");
                 }
-
-                alert("Account created successfully and user added to the database!");
+                navigate("/profile");
             }
         } catch (err) {
             setError(err.message);

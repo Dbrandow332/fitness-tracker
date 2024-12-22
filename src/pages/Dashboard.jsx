@@ -16,6 +16,7 @@ const Dashboard = () => {
         duration: "",
     });
     const [isSubmitting, setIsSubmitting] = useState(false); // Track form submission state
+    const BASE_URL = "https://fitness-trakcer-backend-production.up.railway.app";
 
     useEffect(() => {
         const fetchWorkouts = async () => {
@@ -26,7 +27,7 @@ const Dashboard = () => {
             }
 
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/workouts/${currentUser.uid}`);
+                const response = await fetch(`${BASE_URL}/api/workouts/${currentUser.uid}`);
                 if (!response.ok) {
                     const message =
                         response.status === 404
@@ -120,7 +121,7 @@ const Dashboard = () => {
                 return;
             }
 
-            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/workouts/${currentUser.uid}`, {
+            const response = await fetch(`${BASE_URL}/api/workouts/${currentUser.uid}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newWorkout),
