@@ -26,7 +26,7 @@ const Dashboard = () => {
             }
 
             try {
-                const response = await fetch(`http://localhost:5000/api/workouts/${currentUser.uid}`);
+                const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/workouts/${currentUser.uid}`);
                 if (!response.ok) {
                     const message =
                         response.status === 404
@@ -120,7 +120,7 @@ const Dashboard = () => {
                 return;
             }
 
-            const response = await fetch(`http://localhost:5000/api/workouts/${currentUser.uid}`, {
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/workouts/${currentUser.uid}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newWorkout),
