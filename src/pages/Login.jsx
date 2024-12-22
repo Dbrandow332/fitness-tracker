@@ -24,12 +24,12 @@ const Login = () => {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const firebaseUid = userCredential.user.uid;
 
-                const response = await fetch(`${BASE_URL}/api/users/${firebaseUid}`, {
+                const response = await fetch(`${BASE_URL}/api/users/register`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         firebaseUid,
-                        name: email.split("@")[0],
+                        name: email.split('@')[0], // Use email prefix as default name
                         email,
                     }),
                 });
