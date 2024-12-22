@@ -4,10 +4,8 @@ import path from 'path';
 
 export default defineConfig({
     plugins: [react()],
-    build: {
-        rollupOptions: {
-            external: ['react-chartjs-2', 'chart.js'],
-        }
+    optimizeDeps: {
+        include: ['react-chartjs-2', 'chart.js'], // Ensure these modules are pre-bundled
     },
     resolve: {
         alias: {
